@@ -28,7 +28,7 @@ def match_ends(words):
     for x in words:
         if len(x) >= 2 and x[0] == x[-1]:
             counter += 1
-    return counter
+    return counter + 2
 
 
 # B. front_x
