@@ -2,6 +2,8 @@
 Roei Barak
 318419611
 """
+
+
 def main():
     num = input("Please enter 5 digit number\n")
     print(f"You entered the number:{num}")
@@ -10,8 +12,6 @@ def main():
     for i in range(5):
         sum_dig += int(num[i])
     print(f"The sum of digits is:{sum_dig}")
-
-
 
 
 # Standard boilerplate to call the main() function.
