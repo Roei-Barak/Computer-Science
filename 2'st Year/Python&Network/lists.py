@@ -70,7 +70,7 @@ def sort_last(tuples):
 def remove_adjacent(nums):
     list_sorted = []
     for num in nums:
-        if len(list_sorted) is 0:
+        if len(list_sorted) == 0:
             list_sorted.append(num)
         if num is not list_sorted[-1]:
             list_sorted.append(num)
