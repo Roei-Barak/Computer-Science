@@ -1,13 +1,10 @@
 """ This program has been adapted for use by GVAHIM
        - the main revisions regard pep8 compliance and use of variable names
-
 Copyright 2010 Google Inc.
 Licensed under the Apache License, Version 2.0
 http://www.apache.org/licenses/LICENSE-2.0
-
 Google's Python Class
 http://code.google.com/edu/languages/google-python-class/
-
 Basic list exercises
 Fill in the code for the functions below. main() is already set up
 to call the functions with a few different inputs,
@@ -25,8 +22,8 @@ are some additional functions to try in list2.py. """
 # Note: python does not have a ++ operator, but += works.
 def match_ends(words):
     counter = 0
-    for x in words:
-        if len(x) >= 2 and x[0] == x[-1]:
+    for word in words:
+        if (len(word) >= 2) and (word[0] == word[-1]):
             counter += 1
     return counter
 
@@ -39,15 +36,18 @@ def match_ends(words):
 # Hint: this can be done by making 2 lists and sorting each of them
 # before combining them.
 def front_x(words):
-    words.sort()
-    x_list = []
-    not_x_list = []
-    for x in words:
-        if x[0] == 'x':
-            x_list.append(x)
+    list_start_with_x = []
+    list_alph_bet = []
+    for word in words:
+        if word[0] == 'x':
+            list_start_with_x.append(word)
         else:
-            not_x_list.append(x)
-    return x_list + not_x_list
+            list_alph_bet.append(word)
+    list_alph_bet.sort()
+    list_start_with_x.sort()
+    sorted_list = list_start_with_x + list_alph_bet
+
+    return sorted_list
 
 
 # C. sort_last
@@ -57,10 +57,10 @@ def front_x(words):
 # [(2, 2), (1, 3), (3, 4, 5), (1, 7)]
 # Hint: use a custom key= function to extract the last element form each tuple.
 def sort_last(tuples):
-    def last(a):
-        return a[-1]
-
-    return sorted(tuples, key=last)
+    sorted_list = []
+    for t in tuples:
+        sorted_list.append(t)
+    return sorted(sorted_list, key=lambda tu: tu[1])
 
 
 # D. Given a list of numbers, return a list where
@@ -68,14 +68,15 @@ def sort_last(tuples):
 # so [1, 2, 2, 3] returns [1, 2, 3]. You may create a new list or
 # modify the passed in list.
 def remove_adjacent(nums):
-    a = []
-    for item in nums:
-        if len(a):
-            if a[-1] != item:
-                a.append(item)
-        else:
-            a.append(item)
-    return a
+    list_sorted = []
+    for num in nums:
+        if len(list_sorted) == 0:
+            list_sorted.append(num)
+        if num is not list_sorted[-1]:
+            list_sorted.append(num)
+
+    """  +++your code here+++ """
+    return list_sorted
 
 
 # E. Given two lists sorted in increasing order, create and return a merged
@@ -86,14 +87,22 @@ def remove_adjacent(nums):
 # NOTE - DO NOT use return sorted(sorted1 + sorted2) - that's too easy :-)
 #
 def linear_merge(sorted1, sorted2):
-    result = []
-    while sorted1 and sorted2:
-        if sorted1[-1] > sorted2[-1]:
-            result.append(sorted1[-1].pop(-1))
-        else:
-            result.append(sorted2[-1].pop(-1))
+    merge_sorted = []
+    k = j = 0
+    for i in range(len(sorted1) + len(sorted2)):
+        if j == len(sorted1):
+            return merge_sorted + sorted2[k:]
+        if k == len(sorted2):
+            return merge_sorted + sorted1[j:]
+        if sorted1[j] <= sorted2[k]:
+            merge_sorted.append(sorted1[j])
+            j = j + 1
+        elif sorted1[j] > sorted2[k]:
+            merge_sorted.append(sorted2[k])
+            k = k + 1
 
-    return result
+    """  +++your code here+++ """
+    return merge_sorted
 
 
 def test(got, expected):

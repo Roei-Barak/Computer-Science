@@ -26,17 +26,9 @@
 
 
 def donuts(count):
-    """
-
-    :param count:
-    :return : if count is less then 10 print "Number of donuts: many" .
-              if count is equal 10 or bigger than print the count number instead of many.
-    """
-    if int(count) < 10:
-        return "Number of donuts: " + str(count)
-    else:
-        return "Number of donuts: many"
-
+    if count >= 10:
+        return 'Number of donuts: many'
+    return f'Number of donuts: {count}'
 
 # B. both_ends
 # Given a string s, return a string made of the first 2
@@ -46,11 +38,10 @@ def donuts(count):
 
 
 def both_ends(s):
-    """ your docstring here """
-    if len(s) < 2:
+    if len(s) <= 2:
         return ""
-    else:
-        return (s[0] + s[1] + s[-2] + s[-1])
+    return s[0:2] + s[-2:]
+    """ your docstring here """
     # +++your code here+++
     return
 
@@ -67,11 +58,8 @@ def both_ends(s):
 
 
 def fix_start(s):
-    """ your docstring here """
-    first_char = s[0]
-    return first_char + s[1:].replace(first_char, "*")
 
-    # +++your code here+++
+    return s[0] + s[1:].replace(s[0], '*')
 
 
 # D. MixUp
@@ -84,9 +72,11 @@ def fix_start(s):
 
 
 def mix_up(a, b):
-    """ your docstring here """
-    # +++your code here+++
-    return b[0:2] + a[2:] + " " + a[0:2] + b[2:]
+    a_two_first = a[0:2]
+    b_two_first = b[0:2]
+    a = a.replace(a_two_first, b_two_first, 1)
+    b = b.replace(b_two_first, a_two_first, 1)
+    return a + " " + b
 
 
 # E. verbing
@@ -99,16 +89,12 @@ def mix_up(a, b):
 
 
 def verbing(s):
-    """ your docstring here """
     if len(s) < 3:
         return s
-    elif s[-3:] == "ing":
-        return s + "ly"
+    if s[-3:] == 'ing':
+        return s + 'ly'
     else:
-        return s + "ing"
-
-    # +++your code here+++
-    return
+        return s + 'ing'
 
 
 # F. not_bad
@@ -122,13 +108,10 @@ def verbing(s):
 
 
 def not_bad(s):
-    """ your docstring here """
-    if s.find("not") > s.find("bad"):
-        return s
-    elif s.find("not") < s.find("bad"):
-        return s[:s.find("not")] + "good" + s[s.find("bad") + 3:]
-    # +++your code here+++
-    return
+    if s.find('not') < s.find('bad'):
+        sub_string = s[s.find('not'):s.find('bad')+3]
+        return s.replace(sub_string, "good")
+    return s.replace('not*bad', 'good')
 
 
 # G. front_back
@@ -141,24 +124,23 @@ def not_bad(s):
 
 
 def front_back(a, b):
-    middle = int(len(a) / 2)
+    merge_string = []
+    half_lenth_a = int(len(a) / 2)
     if len(a) % 2 == 0:
-        front_a = a[:middle]
-        back_a = a[middle:]
+        a_front = a[0:half_lenth_a]
+        a_back = a[half_lenth_a:]
     else:
-        front_a = a[:middle + 1]
-        back_a = a[middle + 1:]
-    middle = int(len(b) / 2)
+        a_front = a[0:half_lenth_a+1]
+        a_back = a[half_lenth_a+1:]
+    half_lenth_b = int(len(b) / 2)
     if len(b) % 2 == 0:
-        front_b = b[:middle]
-        back_b = b[middle:]
+        b_front = b[0:half_lenth_b]
+        b_back = b[half_lenth_b]
     else:
-        front_b = b[:middle + 1]
-        back_b = b[middle + 1:]
-    return front_a + front_b + back_a + back_b
-    """ your docstring here """
-    # +++your code here+++
+        b_front = b[:half_lenth_b+1]
+        b_back = b[half_lenth_b+1:]
 
+    return a_front + b_front + a_back + b_back
 
 
 # Provided simple test() function used in main() to print
