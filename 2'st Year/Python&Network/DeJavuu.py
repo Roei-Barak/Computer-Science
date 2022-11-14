@@ -6,8 +6,11 @@ LEN_OF_STRING = 5
 
 
 def is_valid(num):
+    """
+    return True if num is number between 10000 and 99999
+    """
     number = str(num)
-    if len(str(number)) != LEN_OF_STRING:
+    if len(number) != LEN_OF_STRING:
         return False
     for d in number:
         if not d.isdigit():
@@ -16,7 +19,9 @@ def is_valid(num):
 
 
 def sep(num):
-    # separate all digit
+    """
+    return separate digits with ',' between them
+    """
     i = 0
     digit_sep = ""
     for i in range(LEN_OF_STRING - 1):
@@ -25,6 +30,9 @@ def sep(num):
 
 
 def sum_of_digit(num):
+    """
+    return the sum of the 5 digit
+    """
     sum_dig = 0
     for i in range(LEN_OF_STRING):
         sum_dig += int(num[i])
@@ -68,16 +76,12 @@ if __name__ == '__main__':
     main()
 
 """
-Please insert a 5 digit number: op
-Please insert a 5 digit number:afs	`12
-Please insert a 5 digit number:1235o9asf
-Please insert a 5 digit number:as
-Please insert a 5 digit number:dsf
-Please insert a 5 digit number:aa
-Please insert a 5 digit number:`
-Please insert a 5 digit number:123{!2
-Please insert a 5 digit number:P{
-Please insert a 5 digit number:12324
-You entered the number: 12324
-The digits of the number are: 1,2,3,2,4
+Please insert a 5 digit number:123
+Please insert a 5 digit number:123456
+Please insert a 5 digit number:!@#kads
+Please insert a 5 digit number:!@3kf
+Please insert a 5 digit number:98376
+You entered the number: 98376
+The digits of the number are: 9,8,3,7,6
+The sum of digits is: 33
 """
