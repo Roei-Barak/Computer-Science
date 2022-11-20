@@ -1,5 +1,6 @@
 import socket
 import select
+import protocol
 
 MAX_MSG_LENGTH = 1024
 SERVER_PORT = 5555
