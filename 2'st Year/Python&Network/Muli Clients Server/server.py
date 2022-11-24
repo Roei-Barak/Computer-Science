@@ -9,6 +9,7 @@ SERVER_IP = '0.0.0.0'
 
 def create_server_rsp(cmd):
     if cmd == 'NAME':
+        if
         return True
     if cmd == 'GET_NAMES':
         return protocol.create_msg('DHCP/DNS Server for your service')
@@ -39,7 +40,7 @@ server_socket.listen()
 print("Listening for clients...")
 client_sockets = []
 messages_to_send = []
-
+socket_dic = {}
 while True:
     rlist, w_list, xlist = select.select([server_socket] + client_sockets, client_sockets, [])
     for current_socket in rlist:
