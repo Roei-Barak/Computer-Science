@@ -1,9 +1,13 @@
 import socket
-import sys
-
 import protocol
 import msvcrt
-
+while True:
+    if not msvcrt.kbhit() :
+        key_stroke = msvcrt.getch()
+        if key_stroke==b'\x1b':
+            print ("Esc key pressed")
+        else:
+            print (str(key_stroke).split("'")[1],"key pressed")
 flush = False
 ch3 = ''
 while not msvcrt.kbhit() and ch3 != '\r':
