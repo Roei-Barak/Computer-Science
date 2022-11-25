@@ -1,27 +1,32 @@
 import socket
-import protocol
 import msvcrt
-while True:
-    if not msvcrt.kbhit() :
-        key_stroke = msvcrt.getch()
-        if key_stroke==b'\x1b':
-            print ("Esc key pressed")
-        else:
-            print (str(key_stroke).split("'")[1],"key pressed")
-flush = False
-ch3 = ''
-while not msvcrt.kbhit() and ch3 != '\r':
-    ch3 = msvcrt.getwche()
+import protocol
+import select
 
-SERVER_PORT = 5555
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-my_socket.connect(("127.0.0.1", SERVER_PORT))
-msg = msvcrt.getwch()
+my_socket.connect(("127.0.0.1", 5555))
+msg = input("Pls enter msg\n")
+client_sockets = []
 
 while msg != "EXIT":
-    my_socket.send(msg.encode())
-    data = my_socket.recv(1024).decode()
-    print("server replied:", data)
-    msg = input("Pls enter message\n")
+    rlist, w_list, xlist = select.select([my_socket], client_sockets, [], 0.5)
+    print("here1")
+    if msvcrt.kbhit():
+        while True:
+            ch = msvcrt.getch().decode()
+            # print(ch)
+            if ch == '\r':
+                print("ASd")
+                break
+            msg = msg + ch
+            print(ch, end= "", flush=True)
+    print("spme")
+    my_socket.send(protocol.create_msg(msg).encode())
+    msg = ""
+    for current_socket in rlist:
+        print("here socket")
+        data = current_socket.recv(1024).decode()
+        print("Server: ", data)
+
 
 my_socket.close()

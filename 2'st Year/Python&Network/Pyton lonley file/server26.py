@@ -1,16 +1,25 @@
 """EX 2.6 server implementation
-   Author:
-   Date:
+   Author:Roei Barak
+   Date:8/11/2022
    Possible client commands defined in protocol.py
 """
-
+import datetime
 import socket
 import protocol
+import random
 
 
 def create_server_rsp(cmd):
+    if cmd == 'NUMBER' or cmd == "RAND":
+        return protocol.create_msg(random.randint(0, 99))
+    if cmd == 'HELLO' or cmd == "WHORU" :
+        return protocol.create_msg('DHCP/DNS Server for your service')
+    if cmd == "TIME":
+        return protocol.create_msg(datetime.datetime.now())
+    if cmd == "EXIT":
+        return protocol.create_msg("EXIT")
     """Based on the command, create a proper response"""
-    return "Server response"
+    return protocol.create_msg("ERROR")
 
 
 def check_cmd(data):
@@ -23,7 +32,7 @@ def check_cmd(data):
 def main():
     # Create TCP/IP socket object
 
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket = socket.socket() #socket.AF_INET, socket.SOCK_STREAM
     # Bind server socket to IP and Port
     server_socket.bind(("0.0.0.0", 8820))
     # Listen to incoming connections
@@ -43,7 +52,7 @@ def main():
             # 2. Check if the command is valid, use "check_cmd" function
             if check_cmd(cmd):
             # 3. If valid command - create response
-                response = create_server_rsp(cmd)        
+                response = create_server_rsp(cmd)
             else:
                 response = "Wrong protocol"
                 client_socket.recv(1024)  # Attempt to empty the socket from possible garbage
@@ -65,3 +74,15 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+"""
+Server is up and running
+Client connected
+RAND
+NUMBER
+HELLO
+WHORU
+TIME
+EXIT
+Closing
+"""

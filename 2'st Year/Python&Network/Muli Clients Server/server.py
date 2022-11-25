@@ -7,6 +7,27 @@ SERVER_PORT = 5555
 SERVER_IP = '0.0.0.0'
 
 
+def create_server_rsp(cmd):
+    if cmd == 'NAME':
+        if
+        return True
+    if cmd == 'GET_NAMES':
+        return protocol.create_msg('DHCP/DNS Server for your service')
+    if cmd == "MSG":
+        return protocol.create_msg()
+    if cmd == "EXIT":
+        return protocol.create_msg("EXIT")
+    """Based on the command, create a proper response"""
+    return protocol.create_msg("ERROR")
+
+
+def check_cmd(data):
+    if data in protocol.COMMANDS:
+        return True
+    """Check if the command is defined in the protocol (e.g NUMBER, HELLO, TIME, EXIT)"""
+    return False
+
+
 def print_client_sockets(client_socket):
     for c in client_socket:
         print("\t", c.getpeername())
@@ -19,7 +40,7 @@ server_socket.listen()
 print("Listening for clients...")
 client_sockets = []
 messages_to_send = []
-
+socket_dic = {}
 while True:
     rlist, w_list, xlist = select.select([server_socket] + client_sockets, client_sockets, [])
     for current_socket in rlist:
