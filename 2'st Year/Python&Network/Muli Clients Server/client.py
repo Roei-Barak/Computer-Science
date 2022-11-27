@@ -10,7 +10,6 @@ client_sockets = []
 
 while msg != "EXIT":
     rlist, w_list, xlist = select.select([my_socket], client_sockets, [], 0.5)
-    print("here1")
     if msvcrt.kbhit():
         while True:
             ch = msvcrt.getch().decode()
@@ -20,12 +19,10 @@ while msg != "EXIT":
                 break
             msg = msg + ch
             print(ch, end= "", flush=True)
-    print("spme")
     my_socket.send(protocol.create_msg(msg).encode())
     msg = ""
     for current_socket in rlist:
-        print("here socket")
-        data = current_socket.recv(1024).decode()
+        data = protocol.get_msg(current_socket)
         print("Server sent: ", data)
 
 

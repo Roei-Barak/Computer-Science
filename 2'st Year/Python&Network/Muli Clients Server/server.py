@@ -15,7 +15,7 @@ def cmd_parser(cmd):
         return [cmd_name, '', '']
     recipient_name = cmd_parsed[1]
     msg = ' '.join(cmd_parsed[2:])
-    return [cmd_name, recipient_name, msg]
+    return [cmd_name[2:], recipient_name, msg]
 
 
 def create_server_rsp(cmd):
@@ -23,7 +23,7 @@ def create_server_rsp(cmd):
     if parsed_cmd[0] == 'NAME':
         if parsed_cmd[1] in DIC:
             return protocol.create_msg("This name is already exist please choose another name!\n")
-        DIC.update({parsed_cmd[1]: client_address})
+        DIC.update({parsed_cmd[1]: current_socket})
         return protocol.create_msg("Hello " + parsed_cmd[1])
     if parsed_cmd[0] == 'GET_NAMES':
         return protocol.create_msg(' '.join(DIC.keys()))
@@ -62,11 +62,11 @@ while True:
         if current_socket is server_socket:
             connection, client_address = current_socket.accept()
             print("New client joined!", client_address)
-            DIC.update({'a' : client_address})
+            DIC.update({'a': client_address})
             client_sockets.append(connection)
             print_client_sockets(client_sockets)
         else:
-            data = current_socket.recv(MAX_MSG_LENGTH).decode()
+            data = protocol.get_msg(current_socket)
             check_cmd(data)
             if data == "":
                 print("Connection closed", )
@@ -79,5 +79,11 @@ while True:
         current_socket, data = message
         if current_socket in w_list:
             #current_socket.send(data.encode())
-            current_socket.send(create_server_rsp('NAME AAA').encode())
+            # current_socket.send(create_server_rsp('NAME AAA').encode())
+            # current_socket.send(create_server_rsp('GET_NAMES').encode())
+            parsed_cmd = cmd_parser(data)
+            if parsed_cmd[0] == 'MSG':
+                DIC[parsed_cmd[1]].send(create_server_rsp(data).encode())
+            else:
+                current_socket.send(create_server_rsp(data).encode())
             messages_to_send.remove(message)
