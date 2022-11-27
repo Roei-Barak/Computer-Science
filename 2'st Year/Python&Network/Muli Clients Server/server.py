@@ -5,16 +5,30 @@ import protocol
 MAX_MSG_LENGTH = 1024
 SERVER_PORT = 5555
 SERVER_IP = '0.0.0.0'
+DIC = {}
+
+
+def cmd_parser(cmd):
+    cmd_parsed = cmd.split(' ')
+    cmd_name = cmd_parsed[0]
+    if len(cmd_parsed) < 2:
+        return [cmd_name, '', '']
+    recipient_name = cmd_parsed[1]
+    msg = ' '.join(cmd_parsed[2:])
+    return [cmd_name, recipient_name, msg]
 
 
 def create_server_rsp(cmd):
-    if cmd == 'NAME':
-        if
-        return True
-    if cmd == 'GET_NAMES':
-        return protocol.create_msg('DHCP/DNS Server for your service')
+    parsed_cmd = cmd_parser(cmd)
+    if parsed_cmd[0] == 'NAME':
+        if parsed_cmd[1] in DIC:
+            return protocol.create_msg("This name is already exist please choose another name!\n")
+        DIC.update({parsed_cmd[1]: client_address})
+        return protocol.create_msg("Hello " + parsed_cmd[1])
+    if parsed_cmd[0] == 'GET_NAMES':
+        return protocol.create_msg(' '.join(DIC.keys()))
     if cmd == "MSG":
-        return protocol.create_msg()
+        return protocol.create_msg(parsed_cmd[2])
     if cmd == "EXIT":
         return protocol.create_msg("EXIT")
     """Based on the command, create a proper response"""
@@ -22,9 +36,10 @@ def create_server_rsp(cmd):
 
 
 def check_cmd(data):
-    if data in protocol.COMMANDS:
+    parsed_cmd = cmd_parser(data)
+    if parsed_cmd[0] in protocol.COMMANDS:
         return True
-    """Check if the command is defined in the protocol (e.g NUMBER, HELLO, TIME, EXIT)"""
+    """Check if the command is defined in the protocol """
     return False
 
 
@@ -47,10 +62,12 @@ while True:
         if current_socket is server_socket:
             connection, client_address = current_socket.accept()
             print("New client joined!", client_address)
+            DIC.update({'a' : client_address})
             client_sockets.append(connection)
             print_client_sockets(client_sockets)
         else:
             data = current_socket.recv(MAX_MSG_LENGTH).decode()
+            check_cmd(data)
             if data == "":
                 print("Connection closed", )
                 client_sockets.remove(current_socket)
@@ -61,5 +78,6 @@ while True:
     for message in messages_to_send:
         current_socket, data = message
         if current_socket in w_list:
-            current_socket.send(data.encode())
+            #current_socket.send(data.encode())
+            current_socket.send(create_server_rsp('NAME AAA').encode())
             messages_to_send.remove(message)

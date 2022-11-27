@@ -26,7 +26,7 @@ while msg != "EXIT":
     for current_socket in rlist:
         print("here socket")
         data = current_socket.recv(1024).decode()
-        print("Server: ", data)
+        print("Server sent: ", data)
 
 
 my_socket.close()
