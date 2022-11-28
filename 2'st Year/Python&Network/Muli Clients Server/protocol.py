@@ -22,7 +22,8 @@ def create_msg(data):
     if length < 11:
         zfill_length = str(length).zfill(2)
         message = zfill_length + data
-
+    else:
+        message = str(length) + data
     """Create a valid protocol message, with length field"""
     return f"{message}"
 

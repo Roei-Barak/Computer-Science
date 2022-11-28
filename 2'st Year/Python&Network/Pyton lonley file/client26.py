@@ -23,7 +23,7 @@ def main():
         valid_msg, cmd = protocol.get_msg(my_socket)
         # 4. If server's response is valid, print it
         if valid_msg:
-            print("{cmd}")
+            print(f"{cmd}")
         # 5. If command is EXIT, break from while loop
         if user_input == "EXIT":
             break
