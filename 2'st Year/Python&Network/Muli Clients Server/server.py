@@ -15,7 +15,7 @@ def cmd_parser(cmd):
         return [cmd_name, '', '']
     recipient_name = cmd_parsed[1]
     msg = ' '.join(cmd_parsed[2:])
-    return [cmd_name[2:], recipient_name, msg]
+    return [cmd_name, recipient_name, msg]
 
 
 def create_server_rsp(cmd):
@@ -48,6 +48,7 @@ def print_client_sockets(client_socket):
         print("\t", c.getpeername())
 
 
+valid_msg = False
 print("Setting up server...")
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind(("0.0.0.0", 5555))
@@ -62,28 +63,26 @@ while True:
         if current_socket is server_socket:
             connection, client_address = current_socket.accept()
             print("New client joined!", client_address)
-            DIC.update({'a': client_address})
             client_sockets.append(connection)
             print_client_sockets(client_sockets)
         else:
-            data = protocol.get_msg(current_socket)
-            check_cmd(data)
-            if data == "":
-                print("Connection closed", )
-                client_sockets.remove(current_socket)
-                current_socket.close()
-                print_client_sockets(client_sockets)
-            else:
-                messages_to_send.append((current_socket, data))
+            valid_msg, data = protocol.get_msg(current_socket)
+            if valid_msg:
+                check_cmd(data)
+                if data == "":
+                    print("Connection closed", )
+                    client_sockets.remove(current_socket)
+                    current_socket.close()
+                    print_client_sockets(client_sockets)
+                else:
+                    messages_to_send.append((current_socket, data))
     for message in messages_to_send:
         current_socket, data = message
         if current_socket in w_list:
-            #current_socket.send(data.encode())
-            # current_socket.send(create_server_rsp('NAME AAA').encode())
-            # current_socket.send(create_server_rsp('GET_NAMES').encode())
             parsed_cmd = cmd_parser(data)
+            server_response = create_server_rsp(data)
             if parsed_cmd[0] == 'MSG':
-                DIC[parsed_cmd[1]].send(create_server_rsp(data).encode())
+                DIC[parsed_cmd[1]].send(server_response.encode())
             else:
-                current_socket.send(create_server_rsp(data).encode())
+                current_socket.send(server_response.encode())
             messages_to_send.remove(message)
