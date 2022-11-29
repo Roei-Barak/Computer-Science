@@ -56,7 +56,6 @@ server_socket.listen()
 print("Listening for clients...")
 client_sockets = []
 messages_to_send = []
-socket_dic = {}
 while True:
     rlist, w_list, xlist = select.select([server_socket] + client_sockets, client_sockets, [])
     for current_socket in rlist:
@@ -83,6 +82,12 @@ while True:
             server_response = create_server_rsp(data)
             if parsed_cmd[0] == 'MSG':
                 DIC[parsed_cmd[1]].send(server_response.encode())
+            if parsed_cmd[0] == 'EXIT':
+                print("Connection closed", )
+                client_sockets.remove(current_socket)
+                current_socket.close()
+                print_client_sockets(client_sockets)
+                del DIC[parsed_cmd[1]]
             else:
                 current_socket.send(server_response.encode())
             messages_to_send.remove(message)
