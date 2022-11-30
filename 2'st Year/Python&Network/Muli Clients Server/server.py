@@ -27,9 +27,9 @@ def create_server_rsp(cmd):
         return protocol.create_msg("Hello " + parsed_cmd[1])
     if parsed_cmd[0] == 'GET_NAMES':
         return protocol.create_msg(' '.join(DIC.keys()))
-    if cmd == "MSG":
+    if parsed_cmd[0] == "MSG":
         return protocol.create_msg(parsed_cmd[2])
-    if cmd == "EXIT":
+    if parsed_cmd[0] == "EXIT":
         return protocol.create_msg("EXIT")
     """Based on the command, create a proper response"""
     return protocol.create_msg("ERROR")

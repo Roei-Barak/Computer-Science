@@ -12,7 +12,7 @@ import random
 def create_server_rsp(cmd):
     if cmd == 'NUMBER' or cmd == "RAND":
         return protocol.create_msg(random.randint(0, 99))
-    if cmd == 'HELLO' or cmd == "WHORU" :
+    if cmd == 'HELLO' or cmd == "WHORU":
         return protocol.create_msg('DHCP/DNS Server for your service')
     if cmd == "TIME":
         return protocol.create_msg(datetime.datetime.now())
@@ -23,7 +23,7 @@ def create_server_rsp(cmd):
 
 
 def check_cmd(data):
-    if data in protocol.COMMANDS :
+    if data in protocol.COMMANDS:
         return True
     """Check if the command is defined in the protocol (e.g NUMBER, HELLO, TIME, EXIT)"""
     return False
@@ -32,7 +32,7 @@ def check_cmd(data):
 def main():
     # Create TCP/IP socket object
 
-    server_socket = socket.socket() #socket.AF_INET, socket.SOCK_STREAM
+    server_socket = socket.socket()  # socket.AF_INET, socket.SOCK_STREAM
     # Bind server socket to IP and Port
     server_socket.bind(("0.0.0.0", 8820))
     # Listen to incoming connections
@@ -51,7 +51,7 @@ def main():
             print(f"{cmd}")
             # 2. Check if the command is valid, use "check_cmd" function
             if check_cmd(cmd):
-            # 3. If valid command - create response
+                # 3. If valid command - create response
                 response = create_server_rsp(cmd)
             else:
                 response = "Wrong protocol"
@@ -60,7 +60,6 @@ def main():
         else:
             response = "Wrong protocol"
             client_socket.recv(1024)  # Attempt to empty the socket from possible garbage
-
 
         # Send response to the client
         client_socket.send(response.encode())
@@ -71,6 +70,7 @@ def main():
     print("Closing\n")
     # Close sockets
     client_socket.close()
+
 
 if __name__ == "__main__":
     main()
