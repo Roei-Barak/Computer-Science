@@ -27,9 +27,9 @@ def create_server_rsp(cmd):
         return protocol.create_msg("Hello " + parsed_cmd[1])
     if parsed_cmd[0] == 'GET_NAMES':
         return protocol.create_msg(' '.join(DIC.keys()))
-    if cmd == "MSG":
-        return protocol.create_msg(parsed_cmd[2])
-    if cmd == "EXIT":
+    if parsed_cmd[0] == "MSG":
+        return parsed_cmd[2]
+    if parsed_cmd[0] == "EXIT":
         return protocol.create_msg("EXIT")
     """Based on the command, create a proper response"""
     return protocol.create_msg("ERROR")
@@ -81,13 +81,19 @@ while True:
             parsed_cmd = cmd_parser(data)
             server_response = create_server_rsp(data)
             if parsed_cmd[0] == 'MSG':
-                DIC[parsed_cmd[1]].send(server_response.encode())
-            if parsed_cmd[0] == 'EXIT':
+                name = list(DIC.keys())[list(DIC.values()).index(current_socket)]
+                socket_for_send = DIC[parsed_cmd[1]]
+                msg = protocol.create_msg(name + ' send ' + server_response)
+                socket_for_send.send(msg.encode())
+
+            elif parsed_cmd[0] == 'EXIT':
+
                 print("Connection closed", )
                 client_sockets.remove(current_socket)
                 current_socket.close()
                 print_client_sockets(client_sockets)
-                del DIC[parsed_cmd[1]]
+                name = list(DIC.keys())[list(DIC.values()).index(current_socket)]
+                DIC.pop(name)
             else:
                 current_socket.send(server_response.encode())
             messages_to_send.remove(message)

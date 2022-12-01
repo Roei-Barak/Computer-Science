@@ -29,7 +29,10 @@ def create_msg(data):
 
 
 def get_msg(my_socket):
+
     length = my_socket.recv(2)
+    if length == b'':
+        return False, 'EXIT'
     message = my_socket.recv(int(length)).decode()
     """Extract message from protocol, without the length field
      If length field does not include a number, returns False, "Error" """
