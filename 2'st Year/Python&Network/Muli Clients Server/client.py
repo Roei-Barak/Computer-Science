@@ -8,7 +8,7 @@ my_socket.connect(("127.0.0.1", 5555))
 user_input = input("Pls enter msg\n")
 client_sockets = []
 while user_input != "EXIT":
-    print(user_input)
+    # print(user_input)
     rlist, w_list, xlist = select.select([my_socket], client_sockets, [], 0.5)
     if msvcrt.kbhit():
         while True:
@@ -18,11 +18,11 @@ while user_input != "EXIT":
                 print("Enter has been pressed")
                 break
             user_input = user_input + ch
-            print(ch, end="", flush=True)
+            # print(ch, end="", flush=True)
     if user_input != '':
-        print("1")
+        # print("1")
         if user_input == 'EXIT':
-            print('4')
+            # print('4')
             my_socket.close()
             break
         # 1. Add length field ("HELLO" -> "04HELLO")
