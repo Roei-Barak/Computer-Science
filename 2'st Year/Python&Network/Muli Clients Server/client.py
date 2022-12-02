@@ -13,7 +13,6 @@ while user_input != "EXIT":
     if msvcrt.kbhit():
         while True:
             ch = msvcrt.getch().decode()
-            # print(ch)
             if ch == '\r':
                 break
             user_input = user_input + ch
