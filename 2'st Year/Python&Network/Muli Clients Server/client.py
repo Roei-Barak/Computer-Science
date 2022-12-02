@@ -14,6 +14,7 @@ while user_input != "EXIT":
         while True:
             ch = msvcrt.getch().decode()
             if ch == '\r':
+                print('\n')
                 break
             user_input = user_input + ch
             print(ch, end="", flush=True)
