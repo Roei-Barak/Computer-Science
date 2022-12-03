@@ -30,7 +30,7 @@ def create_msg(data):
 
 def get_msg(my_socket):
 
-    length = my_socket.recv(2)
+    length = my_socket.recv(LENGTH_FIELD_SIZE)
     if length == b'':
         return False, 'EXIT'
     message = my_socket.recv(int(length)).decode()
