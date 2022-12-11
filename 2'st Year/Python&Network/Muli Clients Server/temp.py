@@ -1,5 +1,22 @@
-DIC = {'a':1, 'b':2}
-name = list(DIC.keys())[list(DIC.values()).index(1)]
-print(name)
-DIC.pop(name)
-print(DIC)
+def validate_url(url):
+    url_split = url.split('.')
+    if url_split[0] != 'www':
+        return False
+    if url_split[1] == '':
+        return False
+    if url_split[2] == 'com' or (url_split[2] == 'co' and url_split[3] == 'il'):
+        return True
+    return False
+
+
+
+s = 'www.go.com'
+if validate_url(s) is True:
+    print('ok0')
+spl = s.split('.')
+if spl[0] == 'www':
+    print("OK1")
+if spl[1].isascii():
+    print("OK2")
+if spl[2] == 'com':
+    print("OK3")
