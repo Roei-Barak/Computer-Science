@@ -57,6 +57,7 @@ print("Listening for clients...")
 client_sockets = []
 messages_to_send = []
 while True:
+
     rlist, w_list, xlist = select.select([server_socket] + client_sockets, client_sockets, [])
     for current_socket in rlist:
         if current_socket is server_socket:
