@@ -6,7 +6,9 @@
 
 # TO DO: import modules
 import socket
-
+# import validators
+#
+# valid=validators.url('https://www.codespeedy.com/')
 # TO DO: set constants
 IP = '0.0.0.0'
 PORT = 80

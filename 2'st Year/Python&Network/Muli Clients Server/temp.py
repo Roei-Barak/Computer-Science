@@ -7,7 +7,11 @@ def validate_url(url):
     if url_split[2] == 'com' or (url_split[2] == 'co' and url_split[3] == 'il'):
         return True
     return False
+import validators
 
+valid=validators.url('https://www.codespeedy.com/')
+valid =validators.url('https://www.go.com/')
+valid=validators.url('https://www.=.com/')
 
 
 s = 'www.go.com'
