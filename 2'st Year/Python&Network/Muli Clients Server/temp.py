@@ -1,27 +1,15 @@
-def validate_url(url):
-    url_split = url.split('.')
-    if url_split[0] != 'www':
-        return False
-    if url_split[1] == '':
-        return False
-    if (url_split[2] == 'com' and len(url_split) == 3) or (url_split[2] == 'co' and url_split[3] == 'il'):
-        return True
-    return False
+import os
 
+ROOT_DIR =r'C:\Networks\webroot'
 
+def get_file_data(filename):
+    """ Get data from file """
+    filename = filename.replace('/', '\\')
+    name = ROOT_DIR + '\\' + filename
+    if os.path.isfile(name) is True:
+        file = open(filename, 'rb')
+        data = file.read()
+        return data
+    return
 
-s = 'www.go.com.il'
-ss = 'www.a~.co.il'
-
-
-if validate_url(s) is True:
-    print('ok0')
-if validate_url(ss) is True:
-    print('ok2')
-# spl = s.split('.')
-# if spl[0] == 'www':
-#     print("OK1")
-# if spl[1].isascii():
-#     print("OK2")
-# if spl[2] == 'com':
-#     print("OK3")
+get_file_data('index.html')

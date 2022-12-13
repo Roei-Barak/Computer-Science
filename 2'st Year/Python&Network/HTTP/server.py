@@ -5,17 +5,31 @@
 # Usage: Fill the missing functions and constants
 
 # TO DO: import modules
+import os
 import socket
 
+# import validators
+#
+# valid=validators.url('https://www.codespeedy.com/')
 # TO DO: set constants
 IP = '0.0.0.0'
 PORT = 80
 SOCKET_TIMEOUT = 0.1
 HTTP_VER = 'HTTP/1.1'
-DEFAULT_URL = ''
+
+DEFAULT_URL = "C:/Networks/webroot/index.html"
+ROOT_DIR = r'C:\Networks\webroot'
+FIXED_RESPONSE = "HTTP /1.1 200 OK\r\nContent-Length: 9\r\nContent-Type: text/html\r\n\r\n 008880808008"
+
 
 def get_file_data(filename):
     """ Get data from file """
+    filename = filename.replace('/', '\\')
+    name = ROOT_DIR + '\\' + filename
+    if os.path.isfile(name) is True:
+        file = open(name, 'rb')
+        data = file.read()
+        return data
     return
 
 
@@ -25,7 +39,7 @@ def validate_url(url):
         return False
     if url_split[1] == '':
         return False
-    if (url_split[2] == 'com' and len(url_split) == 3) or (url_split[2] == 'co' and url_split[3] == 'il'):
+    if url_split[2] == 'com' or (url_split[2] == 'co' and url_split[3] == 'il'):
         return True
     return False
 
@@ -33,27 +47,39 @@ def validate_url(url):
 def handle_client_request(resource, client_socket):
     """ Check the required resource, generate proper HTTP response and send to client"""
     # TO DO : add code that given a resource (URL and parameters) generates the proper response
-    if resource == '':
+
+    if resource == '/':
         url = DEFAULT_URL
+        filetype = 'html'
     else:
         url = resource
+        dot_index = url.find('.')
+        filetype = url[dot_index + 1:]
 
-        # TO DO: check if URL had been redirected, not available or other error code. For example:
-    if url in REDIRECTION_DICTIONARY:
-        # TO DO: send 302 redirection response
+    # # TO DO: check if URL had been redirected, not available or other error code. For example:
+    # if url in REDIRECTION_DICTIONARY:
+    #     # TO DO: send 302 redirection response
+    http_header = "HTTP /1.1 200 OK\r\n"
+    url_parse = url.split('/')
+    dir = ''
+    # TO DO: extract requested file tupe from URL (html, jpg etc)
+    if filetype == 'html' or filetype == 'text':
+        http_header += "Content-Type: text/html; charset = utf-8"
+    elif filetype == 'jpg' or filetype == 'ico':
+        http_header += 'Content-Type: image/jpeg'
+        dir = 'imgs'
+    elif filetype == 'js':
+        http_header += 'Content-Type: text/javascript; charset=UTF-8'
+        dir = 'js'
+    elif filetype == 'css':
+        http_header += 'Content-Type: text/css'
+        dir = 'css'
 
-        # TO DO: extract requested file tupe from URL (html, jpg etc)
-        if filetype == 'html':
-            http_header =  # TO DO: generate proper HTTP header
-        elif filetype == 'jpg':
-            http_header =  # TO DO: generate proper jpg header
-        # TO DO: handle all other headers
+    # TO DO: read the data from the file
+    data = get_file_data(dir +'/' + url_parse[-1])
+    http_response = http_header + ("Content-Length: " + str(len(data)) + "\r\n\r\n")
+    client_socket.send(http_response.encode() + data)
 
-        # TO DO: read the data from the file
-        data = get_file_data(filename)
-        http_response = http_header + data
-        client_socket.send(http_response.encode())
-    return
 
 
 
@@ -64,22 +90,22 @@ def validate_http_request(request):
     split_request = request.split(' ')
     if split_request[0] != 'GET':
         return False, []
-    if validate_url(split_request[1]) is False:
+    if split_request[1] == '':
         return False
-    if split_request[2] != HTTP_VER + '\r\n':
+    if (split_request[2])[:10] != HTTP_VER + '\r\n':
         return False
     # TO DO: write function
-    return
+    return True, split_request[1]
 
 
 def handle_client(client_socket):
     """ Handles client requests: verifies client's requests are legal HTTP, calls function to handle the requests """
     print('Client connected')
-    client_socket.send(FIXED_RESPONSE.encode())
-    """
+    # client_socket.send(FIXED_RESPONSE.encode())
     while True:
         # TO DO: insert code that receives client request
         # ...
+        client_request = client_socket.recv(1024).decode()
         valid_http, resource = validate_http_request(client_request)
         if valid_http:
             print('Got a valid HTTP request')
@@ -88,7 +114,6 @@ def handle_client(client_socket):
         else:
             print('Error: Not a valid HTTP request')
             break
-    """
     print('Closing connection')
     client_socket.close()
 
