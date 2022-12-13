@@ -16,6 +16,7 @@ IP = '0.0.0.0'
 PORT = 80
 SOCKET_TIMEOUT = 0.1
 HTTP_VER = 'HTTP/1.1'
+REDIRECTION_DICTIONARY = []
 
 DEFAULT_URL = "C:/Networks/webroot/index.html"
 ROOT_DIR = r'C:\Networks\webroot'
@@ -24,13 +25,28 @@ FIXED_RESPONSE = "HTTP /1.1 200 OK\r\nContent-Length: 9\r\nContent-Type: text/ht
 
 def get_file_data(filename):
     """ Get data from file """
+    if filename == '404.html':
+        file = open( ROOT_DIR + '\\' + 'css' + '\\' + filename, 'rb')
+        data = file.read()
+        return data
+    split_filename = filename.split('.')
+    filetype = split_filename[-1]
+    directory = ''
+    if filetype == 'html' or filetype == 'text':
+        directory = ''
+    elif filetype == 'jpg' or filetype == 'ico':
+        directory = 'imgs'
+    elif filetype == 'js':
+        directory = 'js'
+    elif filetype == 'css':
+        directory = 'css'
     filename = filename.replace('/', '\\')
-    name = ROOT_DIR + '\\' + filename
+    name = ROOT_DIR + '\\' + directory + '\\' + filename
     if os.path.isfile(name) is True:
         file = open(name, 'rb')
         data = file.read()
         return data
-    return
+    return False
 
 
 def validate_url(url):
@@ -55,28 +71,33 @@ def handle_client_request(resource, client_socket):
         url = resource
         dot_index = url.rfind('.')
         filetype = url[dot_index + 1:]
-
-    # # TO DO: check if URL had been redirected, not available or other error code. For example:
-    # if url in REDIRECTION_DICTIONARY:
-    #     # TO DO: send 302 redirection response
-    http_header = "HTTP /1.1 200 OK\r\n"
     url_parse = url.split('/')
-    dir = ''
+    # # TO DO: check if URL had been redirected, not available or other error code.
+    if url in REDIRECTION_DICTIONARY:
+        url = DEFAULT_URL
+        filetype = 'html'
+        http_header = "HTTP /1.1 302 Found\r\n"
+        # TO DO: send 302 redirection response
+    elif get_file_data(url_parse[-1]) is False:
+        http_header = "HTTP /1.1 404 Not Found\r\n"
+        url = ROOT_DIR
+        url_parse[-1] = '404.html'
+        filetype = 'html'
+    else:
+        http_header = "HTTP /1.1 200 OK\r\n"
+
     # TO DO: extract requested file tupe from URL (html, jpg etc)
     if filetype == 'html' or filetype == 'text':
-        http_header += "Content-Type: text/html; charset = utf-8"
+        http_header += "Content-Type: text/html; charset = utf-8 "
     elif filetype == 'jpg' or filetype == 'ico':
         http_header += 'Content-Type: image/jpeg'
-        dir = 'imgs'
     elif filetype == 'js':
-        http_header += 'Content-Type: text/javascript; charset=UTF-8'
-        dir = 'js'
+        http_header += 'Content-Type: text/javascript; charset=UTF-8 '
     elif filetype == 'css':
-        http_header += 'Content-Type: text/css; charset=UTF-8'
-        dir = 'css'
+        http_header += 'Content-Type: text/css; charset=UTF-8 '
 
     # TO DO: read the data from the file
-    data = get_file_data(dir + '/' + url_parse[-1])
+    data = get_file_data(url_parse[-1])
     http_response = http_header + ("Content-Length: " + str(len(data)) + "\r\n\r\n")
     client_socket.send(http_response.encode() + data)
 
