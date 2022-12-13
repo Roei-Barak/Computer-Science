@@ -12,8 +12,7 @@ IP = '0.0.0.0'
 PORT = 80
 SOCKET_TIMEOUT = 0.1
 HTTP_VER = 'HTTP/1.1'
-
-
+DEFAULT_URL = ''
 
 def get_file_data(filename):
     """ Get data from file """
@@ -26,37 +25,37 @@ def validate_url(url):
         return False
     if url_split[1] == '':
         return False
-    if url_split[2] == 'com' or (url_split[2] == 'co' and url_split[3] == 'il'):
+    if (url_split[2] == 'com' and len(url_split) == 3) or (url_split[2] == 'co' and url_split[3] == 'il'):
         return True
     return False
+
 
 def handle_client_request(resource, client_socket):
     """ Check the required resource, generate proper HTTP response and send to client"""
     # TO DO : add code that given a resource (URL and parameters) generates the proper response
-    return
-
-    """
     if resource == '':
         url = DEFAULT_URL
     else:
         url = resource
 
-    # TO DO: check if URL had been redirected, not available or other error code. For example:
+        # TO DO: check if URL had been redirected, not available or other error code. For example:
     if url in REDIRECTION_DICTIONARY:
         # TO DO: send 302 redirection response
 
-    # TO DO: extract requested file tupe from URL (html, jpg etc)
-    if filetype == 'html':
-        http_header = # TO DO: generate proper HTTP header
-    elif filetype == 'jpg':
-        http_header = # TO DO: generate proper jpg header
-    # TO DO: handle all other headers
+        # TO DO: extract requested file tupe from URL (html, jpg etc)
+        if filetype == 'html':
+            http_header =  # TO DO: generate proper HTTP header
+        elif filetype == 'jpg':
+            http_header =  # TO DO: generate proper jpg header
+        # TO DO: handle all other headers
 
-    # TO DO: read the data from the file
-    data = get_file_data(filename)
-    http_response = http_header + data
-    client_socket.send(http_response.encode())
-    """
+        # TO DO: read the data from the file
+        data = get_file_data(filename)
+        http_response = http_header + data
+        client_socket.send(http_response.encode())
+    return
+
+
 
 def validate_http_request(request):
     """
@@ -64,13 +63,14 @@ def validate_http_request(request):
     """
     split_request = request.split(' ')
     if split_request[0] != 'GET':
-        return False,[]
+        return False, []
     if validate_url(split_request[1]) is False:
         return False
     if split_request[2] != HTTP_VER + '\r\n':
         return False
     # TO DO: write function
     return
+
 
 def handle_client(client_socket):
     """ Handles client requests: verifies client's requests are legal HTTP, calls function to handle the requests """

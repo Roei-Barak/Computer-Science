@@ -4,19 +4,24 @@ def validate_url(url):
         return False
     if url_split[1] == '':
         return False
-    if url_split[2] == 'com' or (url_split[2] == 'co' and url_split[3] == 'il'):
+    if (url_split[2] == 'com' and len(url_split) == 3) or (url_split[2] == 'co' and url_split[3] == 'il'):
         return True
     return False
 
 
 
-s = 'www.go.com'
+s = 'www.go.com.il'
+ss = 'www.a~.co.il'
+
+
 if validate_url(s) is True:
     print('ok0')
-spl = s.split('.')
-if spl[0] == 'www':
-    print("OK1")
-if spl[1].isascii():
-    print("OK2")
-if spl[2] == 'com':
-    print("OK3")
+if validate_url(ss) is True:
+    print('ok2')
+# spl = s.split('.')
+# if spl[0] == 'www':
+#     print("OK1")
+# if spl[1].isascii():
+#     print("OK2")
+# if spl[2] == 'com':
+#     print("OK3")
