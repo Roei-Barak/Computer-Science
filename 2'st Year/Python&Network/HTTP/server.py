@@ -67,14 +67,16 @@ def handle_client_request(resource, client_socket):
         http_header += "Content-Type: text/html; charset = utf-8"
     elif filetype == 'jpg' or filetype == 'ico':
         http_header += 'Content-Type: image/jpeg'
-        dir =
+        dir = 'imgs'
     elif filetype == 'js':
         http_header += 'Content-Type: text/javascript; charset=UTF-8'
+        dir = 'js'
     elif filetype == 'css':
         http_header += 'Content-Type: text/css'
+        dir = 'css'
 
     # TO DO: read the data from the file
-    data = get_file_data(url_parse[-1])
+    data = get_file_data(dir +'/' + url_parse[-1])
     http_response = http_header + ("Content-Length: " + str(len(data)) + "\r\n\r\n")
     client_socket.send(http_response.encode() + data)
 
