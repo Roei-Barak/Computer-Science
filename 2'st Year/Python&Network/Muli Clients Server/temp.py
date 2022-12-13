@@ -1,15 +1,8 @@
 import os
 
-ROOT_DIR =r'C:\Networks\webroot'
+s = "this.is.string"
 
-def get_file_data(filename):
-    """ Get data from file """
-    filename = filename.replace('/', '\\')
-    name = ROOT_DIR + '\\' + filename
-    if os.path.isfile(name) is True:
-        file = open(filename, 'rb')
-        data = file.read()
-        return data
-    return
-
-get_file_data('index.html')
+u = s.rfind('.')
+u1 = s.find('.', 6,-1)
+print(u)
+print(u1)
