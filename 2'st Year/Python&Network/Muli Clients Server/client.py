@@ -13,8 +13,13 @@ my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 my_socket.connect(("127.0.0.1", 5555))
 user_input = input("Pls enter msg\n")
 client_sockets = []
-try:
-    while user_input != "EXIT":
+
+while user_input != "EXIT":
+
+    # if my_socket.close() == True:
+    #     print("ASF")
+    #     break
+    try:
 
         rlist, w_list, xlist = select.select([my_socket], client_sockets, [], 0.5)
         if msvcrt.kbhit():
@@ -47,8 +52,8 @@ try:
             else:
                 print("Wrong protocol")
         user_input = ''
-except():
-    my_socket.send('EXIT'.encode())
-    my_socket.close()
+    except :
+        print("Server has been lost")
+        break
 
 my_socket.close()
