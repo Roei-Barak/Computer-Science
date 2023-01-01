@@ -9,62 +9,58 @@
 import socket
 import os
 from scapy.all import *
-
-def filter_dns(packet):
-    if DNSQR in packet:
-        return 91
-
+from scapy.layers.dns import DNS, DNSQR
+from scapy.layers.inet import UDP, IP
 
 # TO DO: set constants
 ROOT_DIR = r'C:\Networks\webroot'
 DEFAULT_URL = "index.html"
 CODE = "200 OK"
-IP = '0.0.0.0'
-PORT = 80
-SOCKET_TIMEOUT = 0.1 
+BIND_IP = '0.0.0.0'
+PORT = 8153
+SOCKET_TIMEOUT = 20
+REVERSE = "/reverse/"
 
 
-def get_file_data(filename):
-    """ Get data from file """
-    #file = open(ROOT_DIR + '\\' + filename, 'rb')
-    filename = filename.replace('/', '\\')
-    name = ROOT_DIR + '\\' + filename
-    if os.path.isfile(name) is True:
-        file = open(name, 'rb')
-        data = file.read()
-        return data
+def revers_nslookup(ip):
+    dns_request = IP(dst='8.8.8.8') / UDP(sport=24601, dport=53) / DNS(qdcount=1, rd=1) / DNSQR(qname=ip)
+    dns_response = sr1(dns_request)
+    data = dns_response[DNS].ns.rname
+    return data
+
+def nslookup(name):
+    dns_request = IP(dst='8.8.8.8') / UDP(sport=24601, dport=53) / DNS(qdcount=1, rd=1) / DNSQR(qname=name)
+    dns_response = sr1(dns_request)
+
+    if dns_response.rcode == 0:
+        for answer in dns_response[DNS]:
+            data = answer.an.rdata + '\n'
+    else:
+        return "Error"
+    return data
+
+    # ip_addresses =[rr.rdata for rr in dns_response.an]
+    # return ip_addresses
 
 
 def handle_client_request(resource, client_socket):
+    data = ''
     """ Check the required resource, generate proper HTTP response and send to client"""
-    # TO DO : add code that given a resource (URL and parameters) generates the proper response
-    if resource == '/':
-        url = DEFAULT_URL
+    if resource[:9] == REVERSE:
+        url = resource[9:]
+        data = revers_nslookup(url).decode()
     else:
         url = resource[1:]
+        ip_list = nslookup(url)
+        data = " ".join(ip_list)
+        if ip_list == "Error":
+            data = "Error"
 
-    # TO DO: check if URL had been redirected, not available or other error code. For example:
-    # if url in REDIRECTION_DICTIONARY:
-    # TO DO: send 302 redirection response
-    point = url.find('.', -5, -1)
-    file_type = url[point + 1:]
-    http_header = "HTTP /1.1 200 OK\r\n"
-    # TO DO: extract requested file tupe from URL (html, jpg etc)
-    if file_type == 'html':
-        http_header += "Content-Type: text/html; charset = utf-8"
-    elif file_type == 'jpg' or file_type == 'ico':
-        http_header += "Content-Type: image/jpeg"
-    elif file_type == 'js':
-        http_header += "Content-Type: text/javascript; charset=UTF-8"
-    elif file_type == 'css':
-        http_header += "Content-Type: text/css"
-        # TO DO: generate proper jpg header
+    http_header = "HTTP /1.1 200 OK\r\n\r\n"
 
-    # TO DO: read the data from the file
-    filename = url
-    data = get_file_data(filename)
-    http_response = http_header + ("Content-Length: " + str(len(data)) + "\r\n\r\n")
-    client_socket.send(http_response.encode() + data)
+    http_response = http_header + data
+
+    client_socket.send(http_response.encode())
 
 
 def validate_http_request(request):
@@ -105,7 +101,7 @@ def handle_client(client_socket):
 def main():
     # Open a socket and loop forever while waiting for clients
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind((IP, PORT))
+    server_socket.bind((BIND_IP, PORT))
     server_socket.listen()
     print("Listening for connections on port {}".format(PORT))
 
