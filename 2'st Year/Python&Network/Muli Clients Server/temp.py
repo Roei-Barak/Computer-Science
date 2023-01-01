@@ -1,8 +1,9 @@
-import os
 
-s = "this.is.string"
 
-u = s.rfind('.')
-u1 = s.find('.', 6,-1)
-print(u)
-print(u1)
+a = 3
+b = 0
+
+try:
+    c = a / b
+except:
+    print("ASF")

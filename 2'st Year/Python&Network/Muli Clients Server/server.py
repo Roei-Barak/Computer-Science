@@ -36,11 +36,21 @@ def create_server_rsp(cmd):
 
 
 def check_cmd(data):
-    parsed_cmd = cmd_parser(data)
-    if parsed_cmd[0] in protocol.COMMANDS:
-        return True
+    parse_cmd = cmd_parser(data)
     """Check if the command is defined in the protocol """
-    return False
+    if parse_cmd[0] not in protocol.COMMANDS:
+        return False
+    """Check if the syntax of the command is correct"""
+    if parse_cmd[0] == 'MSG':
+        if parse_cmd[1] == '' or parse_cmd[2] == '':  # if MSG have not the recipient name or the message
+            return False
+    if parse_cmd[0] == 'GET_NAMES':
+        if parse_cmd[1] != '' or parse_cmd[2] != '':  # if GET_NAMES have another parameters
+            return False
+    if parse_cmd[0] == 'NAME':
+        if parse_cmd[1] == '' or parse_cmd[2] != '':  # if NAME don't have the name after command or have parameter
+            return False
+    return True
 
 
 def print_client_sockets(client_socket):
@@ -68,8 +78,10 @@ while True:
         else:
             valid_msg, data = protocol.get_msg(current_socket)
             if valid_msg:
-                check_cmd(data)
-                if data == "":
+                if check_cmd(data) is False:
+                    data = "Not allowed command, please try again"
+                    messages_to_send.append((current_socket, data))
+                elif data == "":
                     print("Connection closed", )
                     client_sockets.remove(current_socket)
                     current_socket.close()
@@ -98,4 +110,3 @@ while True:
             else:
                 current_socket.send(server_response.encode())
             messages_to_send.remove(message)
- 

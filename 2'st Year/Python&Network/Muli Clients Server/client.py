@@ -9,14 +9,20 @@ import msvcrt
 import protocol
 import select
 
+TIME_OUT = 0.5
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 my_socket.connect(("127.0.0.1", 5555))
 user_input = input("Pls enter msg\n")
 client_sockets = []
-try:
-    while user_input != "EXIT":
 
-        rlist, w_list, xlist = select.select([my_socket], client_sockets, [], 0.5)
+while user_input != "EXIT":
+
+    # if my_socket.close() == True:
+    #     print("ASF")
+    #     break
+    try:
+
+        rlist, w_list, xlist = select.select([my_socket], client_sockets, [],TIME_OUT)
         if msvcrt.kbhit():
             while True:
                 ch = msvcrt.getch().decode()
@@ -25,6 +31,17 @@ try:
                     break
                 user_input = user_input + ch
                 print(ch, end="", flush=True)
+                rlist, w_list, xlist = select.select([my_socket], client_sockets, [],TIME_OUT )
+                for current_socket in rlist:
+
+                    valid_msg, server_resp = protocol.get_msg(my_socket)
+                    if server_resp == 'EXIT':
+                        my_socket.close()
+                        break
+                    if valid_msg:
+                        print("\nServer sent: ", server_resp)
+                    else:
+                        print("Wrong protocol")
         if user_input != '':
             if user_input == 'EXIT':
                 message = protocol.create_msg(user_input)
@@ -47,8 +64,8 @@ try:
             else:
                 print("Wrong protocol")
         user_input = ''
-except():
-    my_socket.send('EXIT'.encode())
-    my_socket.close()
+    except :
+        print("Server has been lost")
+        break
 
 my_socket.close()

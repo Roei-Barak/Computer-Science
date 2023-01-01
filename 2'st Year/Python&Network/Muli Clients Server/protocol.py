@@ -12,15 +12,17 @@ COMMANDS = ["NAME", "GET_NAMES", "MSG", "EXIT"]
 
 LENGTH_FIELD_SIZE = 2
 PORT = 8820
+MAX_LEN = 99
+ZERO_FILL_LEN = 11
 
 
 def create_msg(data):
     length = (len(data))
-    if length > 99:
+    if length > MAX_LEN:
         message = "The message is to long"
         return f"{str(len(message))}{message}"
-    if length < 11:
-        zfill_length = str(length).zfill(2)
+    if length < ZERO_FILL_LEN:
+        zfill_length = str(length).zfill(LENGTH_FIELD_SIZE)
         message = zfill_length + data
     else:
         message = str(length) + data
@@ -29,7 +31,6 @@ def create_msg(data):
 
 
 def get_msg(my_socket):
-
     length = my_socket.recv(LENGTH_FIELD_SIZE)
     if length == b'':
         return False, 'EXIT'

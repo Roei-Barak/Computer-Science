@@ -14,19 +14,20 @@ import socket
 # TO DO: set constants
 IP = '0.0.0.0'
 PORT = 80
-SOCKET_TIMEOUT = 0.1
+SOCKET_TIMEOUT = 10
 HTTP_VER = 'HTTP/1.1'
-REDIRECTION_DICTIONARY = []
+REDIRECTION_DICTIONARY = ['page1.html','moved.jpg']
+Forbidden_DICTIONARY = ['page2.html','forbidden.jpg']
 
 DEFAULT_URL = "C:/Networks/webroot/index.html"
 ROOT_DIR = r'C:\Networks\webroot'
-FIXED_RESPONSE = "HTTP /1.1 200 OK\r\nContent-Length: 9\r\nContent-Type: text/html\r\n\r\n 008880808008"
+# FIXED_RESPONSE = "HTTP /1.1 200 OK\r\nContent-Length: 9\r\nContent-Type: text/html\r\n\r\n 008880808008"
 
 
 def get_file_data(filename):
     """ Get data from file """
     if filename == '404.html':
-        file = open( ROOT_DIR + '\\' + 'css' + '\\' + filename, 'rb')
+        file = open(ROOT_DIR + '\\' + 'css' + '\\' + filename, 'rb')
         data = file.read()
         return data
     split_filename = filename.split('.')
@@ -35,13 +36,13 @@ def get_file_data(filename):
     if filetype == 'html' or filetype == 'text':
         directory = ''
     elif filetype == 'jpg' or filetype == 'ico':
-        directory = 'imgs'
+        directory = '\\' + 'imgs'
     elif filetype == 'js':
-        directory = 'js'
+        directory = '\\' +  'js'
     elif filetype == 'css':
-        directory = 'css'
+        directory = '\\' + 'css'
     filename = filename.replace('/', '\\')
-    name = ROOT_DIR + '\\' + directory + '\\' + filename
+    name = ROOT_DIR + directory + '\\' + filename
     if os.path.isfile(name) is True:
         file = open(name, 'rb')
         data = file.read()
@@ -80,8 +81,19 @@ def handle_client_request(resource, client_socket):
         # TO DO: send 302 redirection response
     elif get_file_data(url_parse[-1]) is False:
         http_header = "HTTP /1.1 404 Not Found\r\n"
-        url = ROOT_DIR
         url_parse[-1] = '404.html'
+        filetype = 'html'
+    elif url_parse[-1] in REDIRECTION_DICTIONARY:
+        http_header = "HTTP /1.1 302 Found\r\n"
+        url_parse[-1] = '302.html'
+        filetype = 'html'
+    elif url_parse[-1] in Forbidden_DICTIONARY:
+        http_header = "HTTP /1.1 403 Forbidden\r\n"
+        url_parse[-1] = '403.html'
+        filetype = 'html'
+    elif url_parse[-1] in Forbidden_DICTIONARY:
+        http_header = "HTTP /1.1 500 Internal Server Error\r\n"
+        url_parse[-1] = '500.html'
         filetype = 'html'
     else:
         http_header = "HTTP /1.1 200 OK\r\n"
