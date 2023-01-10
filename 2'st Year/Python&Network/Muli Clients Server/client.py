@@ -9,7 +9,7 @@ import msvcrt
 import protocol
 import select
 
-TIME_OUT = 0.5
+TIME_OUT: float = 0.9
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 my_socket.connect(("127.0.0.1", 5555))
 user_input = input("Pls enter msg\n")
@@ -21,32 +21,23 @@ while user_input != "EXIT":
     #     print("ASF")
     #     break
     try:
-        rlist, w_list, xlist = select.select([my_socket], client_sockets, [],TIME_OUT)
+        rlist, w_list, xlist = select.select([my_socket], client_sockets, [], TIME_OUT)
+
         if msvcrt.kbhit():
             while True:
-                rlist, w_list, xlist = select.select([my_socket], client_sockets, [],TIME_OUT )
-                ch = msvcrt.getwche()
-                if ch == '\r':
-                    print('\n')
-                    break
-                user_input = user_input + ch
-                # print(ch, end="", flush=True)
-                # print(rlist)
-                if len(rlist) != 0:
+                rlist, w_list, xlist = select.select([my_socket], client_sockets, [], TIME_OUT)
+                if len(w_list) != 0:
                     valid_msg, ser_resp = protocol.get_msg(my_socket)
-                    print('\n' + ser_resp + '\n')
-                    # server_resp = my_socket.recv(100)
-                    # print(server_resp.decode())
-                # for current_socket in rlist:
-                #     print("0")
-                #     valid_msg, server_resp = protocol.get_msg(my_socket)
-                #     if server_resp == 'EXIT':
-                #         my_socket.close()
-                #         break
-                #     if valid_msg:
-                #         print("\nServer sent: ", server_resp)
-                #     else:
-                #         print("Wrong protocol")
+                    print('\n' + ser_resp + '\n' + user_input, end="")
+                ch = msvcrt.getch()
+                if ch == b"\r":
+                    break
+                if ch == b'\x08':  # Delete the last charters
+                    user_input = user_input[:-1]
+                else:
+                    user_input = user_input + ch.decode()
+                print(ch.decode(), end="", flush=True)
+
         if user_input != '':
             if user_input == 'EXIT':
                 message = protocol.create_msg(user_input)
@@ -69,7 +60,7 @@ while user_input != "EXIT":
             else:
                 print("Wrong protocol")
         user_input = ''
-    except :
+    except:
         print("Server has been lost")
         break
 
