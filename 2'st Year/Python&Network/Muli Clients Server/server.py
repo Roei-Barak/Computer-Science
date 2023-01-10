@@ -28,6 +28,8 @@ def create_server_rsp(cmd):
     if parsed_cmd[0] == 'GET_NAMES':
         return protocol.create_msg(' '.join(DIC.keys()))
     if parsed_cmd[0] == "MSG":
+        if parsed_cmd[1] not in DIC.keys():
+            return protocol.create_msg("Name doesnt exist")
         return parsed_cmd[2]
     if parsed_cmd[0] == "EXIT":
         return protocol.create_msg("EXIT")
@@ -66,47 +68,49 @@ server_socket.listen()
 print("Listening for clients...")
 client_sockets = []
 messages_to_send = []
-while True:
+try:
+    while True:
+        rlist, w_list, xlist = select.select([server_socket] + client_sockets, client_sockets, [])
+        for current_socket in rlist:
+            if current_socket is server_socket:
+                connection, client_address = current_socket.accept()
+                print("New client joined!", client_address)
+                client_sockets.append(connection)
+                print_client_sockets(client_sockets)
+            else:
+                valid_msg, data = protocol.get_msg(current_socket)
+                if valid_msg:
+                    if check_cmd(data) is False:
+                        data = "Not allowed command, please try again"
+                        messages_to_send.append((current_socket, data))
+                    elif data == "":
+                        print("Connection closed", )
+                        client_sockets.remove(current_socket)
+                        current_socket.close()
+                        print_client_sockets(client_sockets)
+                    else:
+                        messages_to_send.append((current_socket, data))
+        for message in messages_to_send:
+            current_socket, data = message
+            if current_socket in w_list:
+                parsed_cmd = cmd_parser(data)
+                server_response = create_server_rsp(data)
+                if parsed_cmd[0] == 'MSG':
+                    name = list(DIC.keys())[list(DIC.values()).index(current_socket)]
+                    socket_for_send = DIC[parsed_cmd[1]]
+                    msg = protocol.create_msg(name + ' send ' + server_response)
+                    socket_for_send.send(msg.encode())
 
-    rlist, w_list, xlist = select.select([server_socket] + client_sockets, client_sockets, [])
-    for current_socket in rlist:
-        if current_socket is server_socket:
-            connection, client_address = current_socket.accept()
-            print("New client joined!", client_address)
-            client_sockets.append(connection)
-            print_client_sockets(client_sockets)
-        else:
-            valid_msg, data = protocol.get_msg(current_socket)
-            if valid_msg:
-                if check_cmd(data) is False:
-                    data = "Not allowed command, please try again"
-                    messages_to_send.append((current_socket, data))
-                elif data == "":
+                elif parsed_cmd[0] == 'EXIT':
+
                     print("Connection closed", )
                     client_sockets.remove(current_socket)
                     current_socket.close()
                     print_client_sockets(client_sockets)
+                    name = list(DIC.keys())[list(DIC.values()).index(current_socket)]
+                    DIC.pop(name)
                 else:
-                    messages_to_send.append((current_socket, data))
-    for message in messages_to_send:
-        current_socket, data = message
-        if current_socket in w_list:
-            parsed_cmd = cmd_parser(data)
-            server_response = create_server_rsp(data)
-            if parsed_cmd[0] == 'MSG':
-                name = list(DIC.keys())[list(DIC.values()).index(current_socket)]
-                socket_for_send = DIC[parsed_cmd[1]]
-                msg = protocol.create_msg(name + ' send ' + server_response)
-                socket_for_send.send(msg.encode())
-
-            elif parsed_cmd[0] == 'EXIT':
-
-                print("Connection closed", )
-                client_sockets.remove(current_socket)
-                current_socket.close()
-                print_client_sockets(client_sockets)
-                name = list(DIC.keys())[list(DIC.values()).index(current_socket)]
-                DIC.pop(name)
-            else:
-                current_socket.send(server_response.encode())
-            messages_to_send.remove(message)
+                    current_socket.send(server_response.encode())
+                messages_to_send.remove(message)
+except:
+    print("connection has lost")

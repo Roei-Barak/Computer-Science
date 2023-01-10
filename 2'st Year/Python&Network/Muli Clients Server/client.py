@@ -21,27 +21,32 @@ while user_input != "EXIT":
     #     print("ASF")
     #     break
     try:
-
         rlist, w_list, xlist = select.select([my_socket], client_sockets, [],TIME_OUT)
         if msvcrt.kbhit():
             while True:
-                ch = msvcrt.getch().decode()
+                rlist, w_list, xlist = select.select([my_socket], client_sockets, [],TIME_OUT )
+                ch = msvcrt.getwche()
                 if ch == '\r':
                     print('\n')
                     break
                 user_input = user_input + ch
-                print(ch, end="", flush=True)
-                rlist, w_list, xlist = select.select([my_socket], client_sockets, [],TIME_OUT )
-                for current_socket in rlist:
-
-                    valid_msg, server_resp = protocol.get_msg(my_socket)
-                    if server_resp == 'EXIT':
-                        my_socket.close()
-                        break
-                    if valid_msg:
-                        print("\nServer sent: ", server_resp)
-                    else:
-                        print("Wrong protocol")
+                # print(ch, end="", flush=True)
+                # print(rlist)
+                if len(rlist) != 0:
+                    valid_msg, ser_resp = protocol.get_msg(my_socket)
+                    print('\n' + ser_resp + '\n')
+                    # server_resp = my_socket.recv(100)
+                    # print(server_resp.decode())
+                # for current_socket in rlist:
+                #     print("0")
+                #     valid_msg, server_resp = protocol.get_msg(my_socket)
+                #     if server_resp == 'EXIT':
+                #         my_socket.close()
+                #         break
+                #     if valid_msg:
+                #         print("\nServer sent: ", server_resp)
+                #     else:
+                #         print("Wrong protocol")
         if user_input != '':
             if user_input == 'EXIT':
                 message = protocol.create_msg(user_input)
