@@ -15,7 +15,6 @@ PORT = 8820
 MAX_LEN = 99
 ZERO_FILL_LEN = 11
 
-
 def create_msg(data):
     length = (len(data))
     if length > MAX_LEN:
