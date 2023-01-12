@@ -34,7 +34,6 @@ def cmd_parser(cmd):
     mes = ' '.join(cmd_parsed[Cmd.MESSAGE.value:])
     return [cmd_name, recipient_name, mes]
 
-
 def create_server_rsp(cmd):
     """Based on the command, create a proper response"""
     parsing_cmd = cmd_parser(cmd)
