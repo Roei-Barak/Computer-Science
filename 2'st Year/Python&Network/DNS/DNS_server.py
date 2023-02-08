@@ -14,29 +14,65 @@ from scapy.layers.inet import UDP, IP
 
 # TO DO: set constants
 ROOT_DIR = r'C:\Networks\webroot'
+TIMEOUT = 10
 DEFAULT_URL = "index.html"
-CODE = "200 OK"
 BIND_IP = '0.0.0.0'
 PORT = 8153
 SOCKET_TIMEOUT = 20
+DESTINATION_PORT = 53
+SOURCE_PORT = 24601
+MAX_LENGTH_SIZE = 1024
+GOOGLE = '8.8.8.8'
 REVERSE = "/reverse/"
 
 
+def check_ip(ip):
+    ip_seperat = ip.split('.')
+    if not len(ip_seperat) == 4:
+        return False
+    for num in ip_seperat:
+        if num.isnumeric():
+            if 0 < int(num) < 256:
+                continue
+            else:
+                return False
+        else:
+            return False
+    return True
+
+
 def revers_nslookup(ip):
-    dns_request = IP(dst='8.8.8.8') / UDP(sport=24601, dport=53) / DNS(qdcount=1, rd=1) / DNSQR(qname=ip)
-    dns_response = sr1(dns_request)
-    data = dns_response[DNS].ns.rname
-    return data
+    if check_ip(ip) is False:
+        return "Not a valid ip".encode()
+    dns_request = IP(dst=GOOGLE) / UDP(sport=SOURCE_PORT, dport=DESTINATION_PORT) / DNS(qdcount=1, rd=1) / DNSQR(
+        qname=ip + ".in-addr.arpa", qtype="PTR")
+    dns_response = sr1(dns_request, timeout=TIMEOUT, verbose=False)
+    if dns_response[DNS].ancount > 0:
+        ptr_record = dns_response[DNS].an[0]
+        hostname = ptr_record.rdata
+        return hostname
+    else:
+        return ("No hostname found for IP address: " + str(ip)).encode()
+
 
 def nslookup(name):
-    dns_request = IP(dst='8.8.8.8') / UDP(sport=24601, dport=53) / DNS(qdcount=1, rd=1) / DNSQR(qname=name)
-    dns_response = sr1(dns_request)
+    if name[:4] != 'www.':
+        name = 'www.' + name
+    dns_request = IP(dst=GOOGLE) / UDP(sport=SOURCE_PORT, dport=DESTINATION_PORT) / \
+                  DNS(qdcount=1, rd=1) / DNSQR(qname=name)
 
-    if dns_response.rcode == 0:
-        for answer in dns_response[DNS]:
-            data = answer.an.rdata + '\n'
+    dns_response = sr1(dns_request, timeout=TIMEOUT, verbose=False)
+    if dns_response == None:
+        return 'None'
+    data = ''
+    number_of_ans = dns_response[DNS].ancount
+    if not number_of_ans == 0:
+        for i in range(number_of_ans):
+            if dns_response.an[i].type == 1:  # type A not a CNAME
+                data += dns_response.an[i].rdata + '\n'
     else:
-        return "Error"
+        return "ERROR"
+    print(data)
     return data
 
     # ip_addresses =[rr.rdata for rr in dns_response.an]
@@ -82,19 +118,22 @@ def handle_client(client_socket):
     """ Handles client requests: verifies client's requests are legal HTTP, calls function to handle the requests """
     print('Client connected')
     # client_socket.send(FIXED_RESPONSE.encode())
-    while True:
-        # TO DO: insert code that receives client request
-        # ...
-        client_request = client_socket.recv(1024).decode()
-        valid_http, resource = validate_http_request(client_request)
-        if valid_http:
-            print('Got a valid HTTP request')
-            handle_client_request(resource, client_socket)
-            break
-        else:
-            print('Error: Not a valid HTTP request')
-            break
+    client_socket.settimeout(10)
+    try:
+        while True:
+            client_request = client_socket.recv(MAX_LENGTH_SIZE).decode()
+            valid_http, resource = validate_http_request(client_request)
+            if valid_http:
+                print('Got a valid HTTP request')
+                handle_client_request(resource, client_socket)
+                break
+            else:
+                print('Error: Not a valid HTTP request')
+                break
+    except socket.timeout:
+        print('Closing connection')
     print('Closing connection')
+
     client_socket.close()
 
 
@@ -106,10 +145,13 @@ def main():
     print("Listening for connections on port {}".format(PORT))
 
     while True:
-        client_socket, client_address = server_socket.accept()
-        print('New connection received')
-        client_socket.settimeout(SOCKET_TIMEOUT)
-        handle_client(client_socket)
+        try:
+            client_socket, client_address = server_socket.accept()
+            print('New connection received')
+            client_socket.settimeout(SOCKET_TIMEOUT)
+            handle_client(client_socket)
+        except:
+            print("ERROR")
 
 
 if __name__ == "__main__":
